@@ -1,61 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ReCode
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A question-and-answer platform for programmers, in the spirit of Stack Overflow.
+Users ask questions with code snippets and tags, answer each other, vote, and
+bookmark posts. Admins manage users, content and reports from a separate
+dashboard.
 
-## About Laravel
+Built with Laravel 12, Blade, Tailwind CSS and DaisyUI.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Questions and answers**
+- Ask, edit and delete questions, each with an optional code snippet and
+  multiple tags.
+- Answer questions and edit or delete your own answers. The person who asked
+  can mark one answer as accepted, which is enforced by a policy.
+- Upvote or downvote questions and answers, with one vote per user per post.
+- Bookmark questions to read later.
+- View counts on questions.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Discovery**
+- Live search: questions are matched by title as you type, using a JSON
+  endpoint that returns the top 5.
+- Tag pages: browse all tags, or all questions under one tag.
 
-## Learning Laravel
+**User profiles**
+- Edit your profile (username, first and last name, bio) and change your
+  password.
+- Separate pages for your questions, answers, upvoted posts and bookmarks.
+- A personal stats page.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Moderation and admin**
+- Users can report a user, question or answer, with a reason.
+- Admins review reports (`pending` → `reviewed` / `resolved` / `rejected`), add
+  notes, and ban or unban users. Banned users are logged out automatically by
+  the `LogoutBannedUser` middleware.
+- Admin dashboard: user management (edit, delete), question management, and
+  analytics. Analytics show totals, answered questions, the top 5 tags, and a
+  14-day sign-up chart (Chart.js).
+- Role flags: `is_admin`, `is_super_admin`, and `managed_by` for admin
+  hierarchy.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Accounts**
+- Registration, login, email verification and password reset, through Laravel
+  Breeze.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tech stack
 
-## Laravel Sponsors
+| Layer | Tools |
+|---|---|
+| Backend | PHP 8.2, Laravel 12, Eloquent ORM, policies and gates, middleware |
+| Frontend | Blade, Tailwind CSS 3, DaisyUI 5, Alpine.js, jQuery, Select2 (tag picker), Chart.js |
+| Build | Vite 6 |
+| Database | SQLite by default (any Laravel-supported database works) |
+| Auth | Laravel Breeze |
+| Tests | PHPUnit 11 (in-memory SQLite) |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Data model
 
-### Premium Partners
+```
+users ──< questions ──< answers ──< code_blocks
+  │          │  │          │
+  │          │  └──< question_tag >── tags
+  │          │
+  ├──< bookmarks >─────────┤ (user, question) unique
+  ├──< question_votes ─────┘ (user, question) unique, up/down
+  ├──< votes ── answers      (user, answer)   unique, up/down
+  └──< reports               (reporter → user | question | answer)
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+## Getting started
 
-## Contributing
+Requirements: PHP 8.2+, Composer, Node.js 18+ and npm.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone <repo-url> ReCode
+cd ReCode
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+composer run dev
+```
 
-## Code of Conduct
+`composer run dev` starts the web server, queue worker, log viewer and Vite
+together. Open http://localhost:8000.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The seeder creates a test user (`test@example.com`) and 87 tags covering
+languages, frameworks, databases, DevOps and testing tools.
 
-## Security Vulnerabilities
+### Make an admin
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan tinker
+>>> App\Models\User::where('email', 'you@example.com')->update(['is_admin' => true]);
+```
+
+Then visit `/admin`.
+
+## Project structure
+
+```
+app/Http/Controllers/    Question, Answer, Vote, Bookmark, Tag, Search, Report, Profile*, Admin*
+app/Http/Middleware/     AdminMiddleware, LogoutBannedUser
+app/Models/              User, Question, Answer, Tag, Vote, QuestionVote, Bookmark, Report, CodeBlock
+app/Policies/            AnswerPolicy
+database/migrations/     schema for all tables above
+database/seeders/        test user and tag list
+resources/views/         Blade pages: questions, answers, tags, profile, admin, auth
+public/js/               live search, answer editor, tag toggle, charts
+routes/web.php           public, authenticated and admin routes
+```
+
+## Running tests
+
+```bash
+composer test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT

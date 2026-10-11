@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [DashboardController::class, 'index'])->name('welcome');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/questions', [QuestionController::class, 'index'])->name('dashboard');
+Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/question/{id}', [QuestionController::class, 'show'])->name('question.show');
 
@@ -95,11 +95,11 @@ Route::middleware(['admin'])->group(function () {
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     });
 
-    // Admin Questions
-    Route::get('/questions', [AdminQuestionController::class, 'index'])->name('admin.questions.index');
-    Route::get('/questions/{id}/edit', [AdminQuestionController::class, 'edit'])->name('admin.questions.edit');
-    Route::put('/questions/{id}', [AdminQuestionController::class, 'update'])->name('admin.questions.update');
-    Route::delete('/questions/{id}', [AdminQuestionController::class, 'destroy'])->name('admin.questions.destroy');
+    // Admin Questions (under /admin so they do not override the public /questions page)
+    Route::get('/admin/questions', [AdminQuestionController::class, 'index'])->name('admin.questions.index');
+    Route::get('/admin/questions/{id}/edit', [AdminQuestionController::class, 'edit'])->name('admin.questions.edit');
+    Route::put('/admin/questions/{id}', [AdminQuestionController::class, 'update'])->name('admin.questions.update');
+    Route::delete('/admin/questions/{id}', [AdminQuestionController::class, 'destroy'])->name('admin.questions.destroy');
 
     // Admin Analytics
     Route::get('/admin/analytics', [AdminAnalyticsController::class, 'index'])->name('admin.analytics.index');
